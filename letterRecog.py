@@ -41,25 +41,31 @@ def read_sample(path):
 
 def pre_process(image):
     ret, tresholded = cv2.threshold(image, 90, 255, cv2.THRESH_BINARY_INV)  # threshold image
-    im = cv2.medianBlur(tresholded, 9)  # median blur to eliminate noise
+    im = cv2.medianBlur(tresholded, 5)  # median blur to eliminate noise
+    # cv2.imshow('filtered', im)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
     im2,contours,hierarchy = cv2.findContours(im, 1, 2)  # finding contours
 
     areas = [cv2.contourArea(c) for c in contours]  # from found contours we choose the biggest one
     max_index = np.argmax(areas)
-    cnt = contours[max_index]
-
-    x, y, w, h = cv2.boundingRect(cnt)  # find bounding box
-    # cv2.rectangle(im, (x, y), (x+w, y+h), (255, 255, 255), 2)  # draw it
-    im = cv2.resize(im[y:y+h, x:x+w], (50, 50), interpolation=cv2.INTER_AREA)
-    return cv2.bitwise_not(im)
+    letters = []
+    x, y, w, h_max = cv2.boundingRect(contours[max_index])  # find bounding box
+    h_max /= 2
+    for cnt in contours:
+        x, y, w, h = cv2.boundingRect(cnt)  # find bounding box
+        if h >= h_max:
+            letters.append(cv2.bitwise_not(cv2.resize(im[y:y + h, x:x + w], (50, 50), interpolation=cv2.INTER_AREA)))
+    return letters
 
 
 def test_processing(path):
     result = read_sample(path)
-    cv2.imwrite('pictures\ptest.png', result)
-    cv2.imshow('frame', result)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    for image in result:
+        # cv2.imwrite('pictures\ptest.png', result)
+        cv2.imshow('frame', image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 
 def test_base():
@@ -67,3 +73,6 @@ def test_base():
     print (len(baseN))
     print (len(baseN[2]))
     cv2.imwrite('pictures\pbtest.png', baseN[0][2])
+
+
+test_processing('pictures\phone2.jpg')
