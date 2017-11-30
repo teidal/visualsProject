@@ -14,7 +14,7 @@ camera = cv2.VideoCapture(camera_port)
 # Captures a single image from the camera and returns it in PIL format
 def get_image():
     # read is the easiest way to get a full image out of a VideoCapture object.
-    retval, im = camera.read()
+    retval , im = camera.read()
     return im
 
 

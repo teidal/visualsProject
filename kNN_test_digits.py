@@ -1,15 +1,14 @@
 import numpy as np
 import cv2
+import Camera as c
+import letterRecog as lr
 from matplotlib import pyplot as plt
 
-img = cv2.imread('C:\Users\pgack\OneDrive\STUDIA\COmputer_Vision\digits.png')
-gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+# picture = c.take_photo()  # t - take picture; q - quit
+picture = "pictures\phone.jpg"  # for testing
 
-# Now we split the image to 5000 cells, each 20x20 size
-cells = [np.hsplit(row,100) for row in np.vsplit(gray,50)]
-
-# Make it into a Numpy array. It size will be (50,100,20,20)
-x = np.array(cells)
+x = np.array(lr.create_base())  # initialize letter base
+lr.read_sample(picture)  # read picture and pre-process it
 
 # Now we prepare train_data and test_data.
 train = x[:, :50].reshape(-1, 400).astype(np.float32) # Size = (2500,400)
