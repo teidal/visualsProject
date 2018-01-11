@@ -4,8 +4,8 @@ import Camera as c
 import letterRecog as lr
 from matplotlib import pyplot as plt
 
-# picture = c.take_photo()  # t - take picture; q - quit
-picture = "pictures\phone.jpg"  # for testing
+c.take_photo()  # t - take picture; q - quit
+picture = "pictures\photo.png"  # for testing
 
 x = np.array(lr.create_base())  # initialize letter base
 lr.read_sample(picture)  # read picture and pre-process it
