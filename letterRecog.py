@@ -6,18 +6,29 @@ from tqdm import tqdm
 
 
 def create_base():
-    base = []
+    label = {
+        0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 'A', 11: 'B', 12: 'C', 13: 'D', 14: 'E',
+        15: 'F', 16: 'G', 17: 'H', 18: 'I', 19: 'J', 20: 'K', 21: 'L', 22: 'M', 23: 'N', 24: 'O', 25: 'P', 26: 'Q',
+        27: 'R', 28: 'S', 29: 'T', 30: 'U', 31: 'V', 32: 'W', 33: 'X', 34: 'Y', 35: 'Z', 36: 'a', 37: 'b', 38: 'c',
+        39: 'd', 40: 'e', 41: 'f', 42: 'g', 43: 'h', 44: 'i', 45: 'j', 46: 'k', 47: 'l', 48: 'm', 49: 'n', 50: 'o',
+        51: 'p', 52: 'q', 53: 'r', 54: 's', 55: 't', 56: 'u', 57: 'v', 58: 'w', 59: 'x', 60: 'y', 61: 'z'
+    }
+    pictures1 = []
+    labels1 = []
+    i = 0
     for folder in tqdm(glob('.\pictures\Img\*'), desc='Reading images'):
             if os.path.isdir(folder):
-                images = []
                 for img_path in glob(folder + '\img*.png'):
                     # print(img_path)
                     img = cv2.imread(img_path)
                     img = cv2.resize(img, (50, 50), interpolation=cv2.INTER_AREA)
                     # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY).reshape(660).astype(np.float32, copy=False)
-                    images.append(img)
-                base.append(images)
-    return base
+                    pictures1.append(img)
+                    labels1.append(label[i])
+                i += 1
+    pictures = np.array(pictures1)
+    labels = np.array(labels1)
+    np.savez('base.npz', pictures=pictures, labels=labels)
 
 
 def read_sample(path):
@@ -75,4 +86,7 @@ def test_base():
     cv2.imwrite('pictures\pbtest.png', baseN[0][2])
 
 
-test_processing('pictures\phone2.jpg')
+if __name__ == "__main__":
+    x = create_base()
+    print("Done")
+    print(x[825])

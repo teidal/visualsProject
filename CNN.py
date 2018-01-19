@@ -10,6 +10,14 @@ import collections
 import re, os, cv2
 from glob import glob
 
+
+def load_base(filename):
+    with np.load(filename) as data:
+        pictures = data["pictures"]
+        labels = data ["labels"]
+        return pictures, labels
+
+
 def create_new_conv_layer(input_data, num_input_channels, num_filters, filter_shape, pool_shape, name):
 
     conv_filt_shape = [filter_shape[0], filter_shape[1], num_input_channels, num_filters] #setup the filter input shape for tf.nn.conv_2d
@@ -25,12 +33,16 @@ def create_new_conv_layer(input_data, num_input_channels, num_filters, filter_sh
     out_layer = tf.nn.max_pool(out_layer, ksize=ksize, strides=strides, padding='SAME') #operation of creation the CNN layer
     return out_layer
 
+
 character_mapping = {
 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 'A', 11: 'B', 12: 'C', 13: 'D', 14: 'E', 15: 'F', 16: 'G', 17: 'H', 18: 'I', 19: 'J', 20: 'K', 21: 'L', 22: 'M', 23: 'N', 24: 'O', 25: 'P', 26: 'Q', 27: 'R', 28: 'S', 29: 'T', 30: 'U', 31: 'V', 32: 'W', 33: 'X', 34: 'Y', 35: 'Z', 36: 'a', 37: 'b', 38: 'c', 39: 'd', 40: 'e', 41: 'f', 42: 'g', 43: 'h', 44: 'i', 45: 'j', 46: 'k', 47: 'l', 48: 'm', 49: 'n', 50: 'o', 51: 'p', 52: 'q', 53: 'r', 54: 's', 55: 't', 56: 'u', 57: 'v', 58: 'w', 59: 'x', 60: 'y', 61: 'z'
 }
 
-get_images = np.array(lr.create_base())  # initialize letter base
-#picture = c.take_photo()  # t - take picture; q - quit
+# get_images = np.array(lr.create_base())  # initialize letter base
+pictures, labels = load_base('base.npz')
+
+
+# picture = c.take_photo()  # t - take picture; q - quit
 picture_test = "pictures\phone.jpg"  # for testing
 
 learning_rate = 0.0001 #learning rate
@@ -44,9 +56,16 @@ img_width = 56
 img_size_flat = img_height * img_width # Images are stored in one-dimensional arrays of this length.
 img_shape = (img_height, img_width) # Tuple with height and width of images used to reshape arrays.
 
-x = tf.placeholder(tf.float32, [None, img_size_flat])
+# x = tf.placeholder(tf.float32, [None, img_size_flat])
+# y = tf.placeholder(tf.float32, [None, num_classes])
+
+assert pictures.shape[0] == labels.shape[0]
+x = tf.placeholder(pictures.dtype, pictures.shape)
+y = tf.placeholder(labels.dtype, labels.shape)
+dataset = tf.data.Dataset.from_tensor_slices((x, y))
+iterator = dataset.make_initializable_iterator()
 x_shaped = tf.reshape(x, [-1, img_height, img_width, 1])
-y = tf.placeholder(tf.float32, [None, num_classes])
+
 
 #new CNN layer
 
@@ -86,25 +105,26 @@ tf.summary.scalar('accuracy', accuracy)
 
 merged = tf.summary.merge_all()
 writer = tf.summary.FileWriter('results')
+# gdzies musisz wsadzic to: sess.run(iterator.initializer, feed_dict={features_placeholder: features, labels_placeholder: labels})
 
-#initialise the variables and start the session
 with tf.Session() as sess:
-     sess.run(init_op)
-     total_batch = int(len(get_images) / batch_size)
-     for epoch in range(epochs):
-         epoch_loss = 0
-         for _ in range(total_batch):
-#           batch_x, batch_y = get_images.train.next_batch(batch_size=batch_size)
-#            _, c = sess.run([optimiser, cost], feed_dict={x: batch_x, y: batch_y})
-#             epoch_loss += c / total_batch
-#         test_acc = sess.run(accuracy, feed_dict={x: picture_test, y: mnist.test.labels})
-#         print("Epoch:", (epoch + 1), "cost =", "{:.3f}".format(epoch_loss), " test accuracy: {:.3f}".format(test_acc))
-#         summary = sess.run(merged, feed_dict={x: picture_test, y: mnist.test.labels})
-#         writer.add_summary(summary, epoch)
-#
-#     print("\nTraining complete!")
-#     writer.add_graph(sess.graph)
-#     print(sess.run(accuracy, feed_dict={x: picture_test, y: mnist.test.labels}))
+    # initialise the variables
+    sess.run(init_op)
+    total_batch = int(len(get_images) / batch_size)
+    for epoch in range(epochs):
+        epoch_loss = 0
+        for _ in range(total_batch):
+            batch_x, batch_y = get_images.train.next_batch(batch_size=batch_size)
+            _, c = sess.run([optimiser, cost], feed_dict={x: batch_x, y: batch_y})
+            epoch_loss += c / total_batch
+        test_acc = sess.run(accuracy, feed_dict={x: mnist.test.images, y: mnist.test.labels})
+        print("Epoch:", (epoch + 1), "cost =", "{:.3f}".format(epoch_loss), " test accuracy: {:.3f}".format(test_acc))
+        summary = sess.run(merged, feed_dict={x: mnist.test.images, y: mnist.test.labels})
+        writer.add_summary(summary, epoch)
+
+    print("\nTraining complete!")
+    writer.add_graph(sess.graph)
+    print(sess.run(accuracy, feed_dict={x: mnist.test.images, y: mnist.test.labels}))
 
 
 
