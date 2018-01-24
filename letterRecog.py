@@ -5,6 +5,7 @@ from glob import glob
 from tqdm import tqdm
 
 
+# creates database as a numpy file, with 2 lists: list of pictures and list of labels. picture[i] has label[i]
 def create_base():
     label = {
         0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 'A', 11: 'B', 12: 'C', 13: 'D', 14: 'E',
@@ -50,6 +51,7 @@ def read_sample(path):
     return pre_process(img)
 
 
+# apply median blur, manual thresholding, find boundig boxes
 def pre_process(image):
     ret, tresholded = cv2.threshold(image, 90, 255, cv2.THRESH_BINARY_INV)  # threshold image
     im = cv2.medianBlur(tresholded, 5)  # median blur to eliminate noise
@@ -79,13 +81,7 @@ def test_processing(path):
         cv2.destroyAllWindows()
 
 
-def test_base():
-    baseN = create_base()
-    print (len(baseN))
-    print (len(baseN[2]))
-    cv2.imwrite('pictures\pbtest.png', baseN[0][2])
-
-
+# for testing
 if __name__ == "__main__":
     x = create_base()
     print("Done")

@@ -13,15 +13,15 @@ def take_photo():
 
         # Display the resulting frame
         cv2.imshow('frame', frame)
-        k = cv2.waitKey(1) & 0xFF
+        k = cv2.waitKey(1) & 0xFF # wait for user input
 
-        if k == ord('t'):
+        if k == ord('t'): # if t, take picture
             print("Taking image...")
             photo = "pictures\photo.png"
             # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             cv2.imwrite(photo, frame)
             print("Done!")
-        elif k == ord('q'):
+        elif k == ord('q'): # if q quit
             break
 
     # When everything done, release the capture
