@@ -21,7 +21,7 @@ def create_base():
                 for img_path in glob(folder + '\img*.png'):
                     # print(img_path)
                     img = cv2.imread(img_path)
-                    img = cv2.resize(img, (50, 50), interpolation=cv2.INTER_AREA)
+                    img = cv2.resize(img, (56, 56), interpolation=cv2.INTER_AREA)
                     # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY).reshape(660).astype(np.float32, copy=False)
                     pictures1.append(img)
                     labels1.append(label[i])
@@ -89,4 +89,4 @@ def test_base():
 if __name__ == "__main__":
     x = create_base()
     print("Done")
-    print(x[825])
+    #print(x[825])
